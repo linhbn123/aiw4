@@ -192,5 +192,6 @@ checkout the source branch of the pull request,
 beautify all the code in the .py source code files 
 changed by the pull request as per pep8 standards, 
 commit the change and push to the remote repository.
+Make sure to not touch the non-python source code files.
 """
 list(agent_executor.stream({"input": user_prompt}))
