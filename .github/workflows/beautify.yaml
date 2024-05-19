@@ -1,0 +1,55 @@
+name: Code beautifier
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - '.github/**'
+
+jobs:
+  review-code-changes:
+    if: github.event.pull_request.draft == false
+    name: Beautify
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repo to access its content
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Set up Python using the latest stable version
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.12'
+
+      # Install Python dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tools/requirements.txt
+
+      - name: Get PR info
+        id: pr_info
+        run: |
+          pr_num=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          echo "pull_request_number=$pr_num" >> $GITHUB_ENV
+
+      - name: Beautify
+        run: |
+          python tools/beautify.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGCHAIN_ENDPOINT: ${{ secrets.LANGCHAIN_ENDPOINT }}
+          LANGCHAIN_PROJECT: ${{ secrets.LANGCHAIN_PROJECT }}
+          LANGCHAIN_TRACING_V2: ${{ secrets.LANGCHAIN_TRACING_V2 }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          REPO_PATH: ${{ github.repository }} # E.g. owner/name
+          PR_NUMBER: ${{ env.pull_request_number }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+
+      # Additional step to enable debugging, helps in troubleshooting
+      - name: Enable Debug Logging
+        run: |
+          echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
