@@ -16,19 +16,22 @@ from langsmith import traceable
 # Initialize local repository path
 LOCAL_REPO_PATH = "/tmp/aiw4"
 
+
 @tool
 @traceable
 def clone_repo():
     """
     Clone the repository to the local repo path if not already cloned.
     """
-    repo_url = f"https://{os.getenv('GITHUB_TOKEN')}@github.com/{os.getenv('REPO_PATH')}.git"
+    repo_url = f"https://{os.getenv('GITHUB_TOKEN')
+                          }@github.com/{os.getenv('REPO_PATH')}.git"
 
     if not os.path.exists(LOCAL_REPO_PATH):
         git.Repo.clone_from(repo_url, LOCAL_REPO_PATH)
         print(f"Cloned repo from {repo_url} to {LOCAL_REPO_PATH}")
     else:
         print(f"Repo already exists at {LOCAL_REPO_PATH}")
+
 
 @tool
 @traceable
@@ -42,6 +45,7 @@ def switch_to_local_repo_path():
         print(f"Switched to directory: {LOCAL_REPO_PATH}")
     except Exception as e:
         print(f"Failed to switch to directory: {e}")
+
 
 @tool
 @traceable
@@ -62,6 +66,7 @@ def checkout_source_branch():
     repo.git.checkout(os.getenv('SOURCE_BRANCH'))
     print(f"Active branch: {repo.active_branch.name}")
 
+
 @tool
 @traceable
 def get_files_from_pull_request():
@@ -76,7 +81,7 @@ def get_files_from_pull_request():
 
     # Get the repo path and PR number from the environment variables
     repo_path = os.getenv('REPO_PATH')
-    
+
     # Get the repo object
     repo = g.get_repo(repo_path)
 
@@ -86,6 +91,7 @@ def get_files_from_pull_request():
 
     # Get the diffs of the pull request
     return [file.filename for file in pull_request.get_files()]
+
 
 @tool
 @traceable
@@ -99,6 +105,7 @@ def run_autopep8(files):
     for file in files:
         subprocess.run(['autopep8', '--in-place', file])
 
+
 @tool
 @traceable
 def has_changes():
@@ -111,6 +118,7 @@ def has_changes():
     repo = git.Repo(os.getcwd())
     print(f"Repo has changes: {repo.is_dirty()}")
     return repo.is_dirty()
+
 
 @tool
 @traceable
@@ -136,6 +144,7 @@ def commit_and_push(commit_message):
         print(f"    Remote ref: {push_info.remote_ref}")
         print(f"    Local ref: {push_info.local_ref}")
         print(f"    Flags: {push_info.flags}")
+
 
 # List of tools to use
 tools = [
